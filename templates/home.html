@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Time Started</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+        .container {
+            text-align: center;
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 2rem 3rem;
+            border-radius: 15px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.8;
+        }
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+            100% {
+                transform: scale(1);
+            }
+        }
+        .logout-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px; /* This adds space between the buttons */
+        }
+
+        .logout-btn {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .screenshot-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease, cursor 0.3s ease;
+        }
+
+        .screenshot-btn i {
+            font-size: 1.2rem;
+        }
+
+        .screenshot-btn:hover:not(:disabled) {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .screenshot-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+    <div class="logout-container">
+        <button id="screenshotListBtn" class="logout-btn">Screenshot List</button>
+        <button id="logoutBtn" class="logout-btn">Logout</button>
+    </div>
+    <div class="container">
+        <h1 class="pulse">Your time will be monitored</h1>
+        <div id="elapsedTime" class="subtitle">00:00:00</div>
+        <div class="button-group">
+            <button id="startScreenshotBtn" class="screenshot-btn">
+                <i class="fas fa-play"></i> Start Billing
+            </button>
+            <button id="pauseScreenshotBtn" class="screenshot-btn" disabled>
+                <i class="fas fa-pause"></i> Pause Billing
+            </button>
+            <button id="stopScreenshotBtn" class="screenshot-btn" disabled>
+                <i class="fas fa-stop"></i> Stop Billing
+            </button>
+            <button id="resumeScreenshotBtn" class="screenshot-btn" disabled>
+                <i class="fas fa-redo"></i> Resume Billing
+            </button>
+        </div>
+    </div>
+</body>
+<script>
+let startTime;
+let elapsedTime = 0;
+let timerInterval;
+
+function updateElapsedTime() {
+    const currentTime = Date.now();
+    const timeDiff = currentTime - startTime + elapsedTime;
+    const hours = Math.floor(timeDiff / 3600000);
+    const minutes = Math.floor((timeDiff % 3600000) / 60000);
+    const seconds = Math.floor((timeDiff % 60000) / 1000);
+    
+    const timeString = [hours, minutes, seconds]
+        .map(unit => unit.toString().padStart(2, '0'))
+        .join(':');
+    
+    document.getElementById('elapsedTime').textContent = timeString;
+}
+
+function startScreenshotCapture() {
+    fetch('/start_screenshot_capture/', {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('startScreenshotBtn').disabled = true;
+            document.getElementById('pauseScreenshotBtn').disabled = false;
+            document.getElementById('stopScreenshotBtn').disabled = false;
+            document.getElementById('resumeScreenshotBtn').disabled = true;
+            
+            startTime = Date.now();
+            timerInterval = setInterval(updateElapsedTime, 1000);
+        } else {
+            alert('Failed to start screenshot capture.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while starting screenshot capture.');
+    });
+}
+
+function pauseScreenshotCapture() {
+    fetch('/pause_screenshot_capture/', {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('startScreenshotBtn').disabled = true;
+            document.getElementById('pauseScreenshotBtn').disabled = true;
+            document.getElementById('stopScreenshotBtn').disabled = false;
+            document.getElementById('resumeScreenshotBtn').disabled = false;
+            
+            clearInterval(timerInterval);
+            elapsedTime += Date.now() - startTime;
+        } else {
+            alert('Failed to pause screenshot capture.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while pausing screenshot capture.');
+    });
+}
+
+function resume_screenshot_capture() {
+    fetch('/resume_screenshot_capture/', {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('startScreenshotBtn').disabled = true;
+            document.getElementById('pauseScreenshotBtn').disabled = false;
+            document.getElementById('stopScreenshotBtn').disabled = false;
+            document.getElementById('resumeScreenshotBtn').disabled = true;
+            
+            startTime = Date.now();
+            timerInterval = setInterval(updateElapsedTime, 1000);
+        } else {
+            alert('Failed to resume screenshot capture.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while resuming screenshot capture.');
+    });
+}
+
+function stopScreenshotCapture() {
+    eTime = document.getElementById('elapsedTime').textContent
+    console.log(eTime)
+
+    const url = `/stop_screenshot_capture/?elapsedTime=${eTime}`;
+    fetch(url, {
+        method: 'GET',
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            document.getElementById('startScreenshotBtn').disabled = false;
+            document.getElementById('pauseScreenshotBtn').disabled = true;
+            document.getElementById('stopScreenshotBtn').disabled = true;
+            document.getElementById('resumeScreenshotBtn').disabled = true;
+            
+            clearInterval(timerInterval);
+            elapsedTime = 0;
+            document.getElementById('elapsedTime').textContent = '00:00:00';
+        } else {
+            alert('Failed to stop screenshot capture.');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while stopping screenshot capture.');
+    });
+}
+
+function logout() {
+    $.ajax({
+        url: `/logout/`,
+        type: 'GET',
+        success: function(response) {
+            // Handle success response
+            console.log('Logout:', response);
+            window.location.href = '/login/';
+        },
+        error: function(xhr, status, error) {
+            // Handle error
+            console.error('Error deleting agent:', error);
+        }
+    });
+
+}
+
+// Add event listener to the logout button
+document.getElementById('logoutBtn').addEventListener('click', logout);
+
+// Add event listener to the screenshot list button
+document.getElementById('screenshotListBtn').addEventListener('click', function() {
+    window.location.href = '/screenshot_list/';
+});
+
+// Add event listener to the start screenshot button
+document.getElementById('startScreenshotBtn').addEventListener('click', startScreenshotCapture);
+
+// Add event listeners for the new buttons
+document.getElementById('pauseScreenshotBtn').addEventListener('click', pauseScreenshotCapture);
+document.getElementById('stopScreenshotBtn').addEventListener('click', stopScreenshotCapture);
+document.getElementById('resumeScreenshotBtn').addEventListener('click', resume_screenshot_capture);
+
+</script>
+</html>

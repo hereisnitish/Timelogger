@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screenshot Gallery</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            color: white;
+        }
+        h1 {
+            text-align: center;
+            color: white;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 20px;
+        }
+        .screenshot {
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            backdrop-filter: blur(4px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            overflow: hidden;
+            transition: transform 0.3s ease;
+        }
+        .screenshot:hover {
+            transform: translateY(-5px);
+        }
+        .screenshot img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        .screenshot-info {
+            padding: 15px;
+        }
+        .screenshot-info h3 {
+            margin: 0 0 10px 0;
+            color: white;
+        }
+        .screenshot-info p {
+            margin: 0;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+        }
+        .nav-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .nav-btn {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+        }
+        .nav-btn:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="nav-container">
+        <button id="homeBtn" class="nav-btn">Home</button>
+        <button id="logoutBtn" class="nav-btn">Logout</button>
+    </div>
+    <h1>Screenshot Gallery</h1>
+    <div class="gallery">
+        {% for screenshot in screenshots %}
+        <div class="screenshot">
+            <img src="{{ screenshot.image_url }}" alt="{{ screenshot.title }}">
+            <div class="screenshot-info">
+                <h3>{{ screenshot.title }}</h3>
+                <p>Taken on: {{ screenshot.date_taken }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <script>
+        function logout() {
+            $.ajax({
+                url: `/logout/`,
+                type: 'GET',
+                success: function(response) {
+                    console.log('Logout:', response);
+                    window.location.href = '/login/';
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error logging out:', error);
+                }
+            });
+        }
+
+        document.getElementById('logoutBtn').addEventListener('click', logout);
+        document.getElementById('homeBtn').addEventListener('click', function() {
+            window.location.href = '/';
+        });
+    </script>
+</body>
+</html>
