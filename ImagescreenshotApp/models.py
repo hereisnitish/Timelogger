@@ -64,3 +64,9 @@ class FaceCapture(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     image = models.ImageField(upload_to='face_captures/')
     date_taken = models.DateTimeField(auto_now_add=True)
+
+class activityIntensity(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    key_count = models.IntegerField(default=0)
+    mouse_count = models.IntegerField(default=0)
+    activity_intensity = models.IntegerField(default=0)

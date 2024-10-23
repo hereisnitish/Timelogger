@@ -123,9 +123,6 @@
             <button id="pauseScreenshotBtn" class="screenshot-btn" disabled>
                 <i class="fas fa-pause"></i> Pause Billing
             </button>
-            <button id="stopScreenshotBtn" class="screenshot-btn" disabled>
-                <i class="fas fa-stop"></i> Stop Billing
-            </button>
             <button id="resumeScreenshotBtn" class="screenshot-btn" disabled>
                 <i class="fas fa-redo"></i> Resume Billing
             </button>
@@ -164,7 +161,6 @@ function startScreenshotCapture() {
         if (data.success) {
             document.getElementById('startScreenshotBtn').disabled = true;
             document.getElementById('pauseScreenshotBtn').disabled = false;
-            document.getElementById('stopScreenshotBtn').disabled = false;
             document.getElementById('resumeScreenshotBtn').disabled = true;
             
             startTime = Date.now();
@@ -192,7 +188,6 @@ function pauseScreenshotCapture() {
         if (data.success) {
             document.getElementById('startScreenshotBtn').disabled = true;
             document.getElementById('pauseScreenshotBtn').disabled = true;
-            document.getElementById('stopScreenshotBtn').disabled = false;
             document.getElementById('resumeScreenshotBtn').disabled = false;
             
             clearInterval(timerInterval);
@@ -220,7 +215,6 @@ function resume_screenshot_capture() {
         if (data.success) {
             document.getElementById('startScreenshotBtn').disabled = true;
             document.getElementById('pauseScreenshotBtn').disabled = false;
-            document.getElementById('stopScreenshotBtn').disabled = false;
             document.getElementById('resumeScreenshotBtn').disabled = true;
             
             startTime = Date.now();
@@ -252,7 +246,6 @@ function stopScreenshotCapture() {
         if (data.success) {
             document.getElementById('startScreenshotBtn').disabled = false;
             document.getElementById('pauseScreenshotBtn').disabled = true;
-            document.getElementById('stopScreenshotBtn').disabled = true;
             document.getElementById('resumeScreenshotBtn').disabled = true;
             
             clearInterval(timerInterval);
@@ -298,7 +291,6 @@ document.getElementById('startScreenshotBtn').addEventListener('click', startScr
 
 // Add event listeners for the new buttons
 document.getElementById('pauseScreenshotBtn').addEventListener('click', pauseScreenshotCapture);
-document.getElementById('stopScreenshotBtn').addEventListener('click', stopScreenshotCapture);
 document.getElementById('resumeScreenshotBtn').addEventListener('click', resume_screenshot_capture);
 
 </script>
